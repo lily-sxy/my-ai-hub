@@ -14,6 +14,7 @@ export function Chat() {
   const [streaming, setStreaming] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [showPlannerBanner, setShowPlannerBanner] = useState(false)
+  const [selectedModel, setSelectedModel] = useState('claude')
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const { data: messages = [] } = useQuery({
@@ -32,6 +33,10 @@ export function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streaming])
 
+  useEffect(() => {
+    if (thread?.model) setSelectedModel(thread.model)
+  }, [thread?.model])
+
   const sendMessage = async () => {
     if (!input.trim() || !threadId || isStreaming) return
     const text = input.trim()
@@ -43,7 +48,7 @@ export function Chat() {
     setIsStreaming(true)
     setStreaming('')
 
-    const res = await api.sendMessage(threadId, text)
+    const res = await api.sendMessage(threadId, text, selectedModel)
     const reader = res.body!.getReader()
     const decoder = new TextDecoder()
     let full = ''
@@ -85,9 +90,9 @@ export function Chat() {
         <Text fw={600} size="sm">{thread?.title || 'Chat'}</Text>
         <Select
           size="xs"
-          value={thread?.model || 'claude'}
+          value={selectedModel}
           data={[{ value: 'claude', label: 'Claude' }, { value: 'gpt-4o', label: 'GPT-4o' }]}
-          onChange={val => val && threadId && api.updateThread(threadId, { model: val })}
+          onChange={val => val && setSelectedModel(val)}
           style={{ width: 120 }}
         />
       </Group>

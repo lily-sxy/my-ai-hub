@@ -16,8 +16,8 @@ export const api = {
   restoreThread: (id: string) => fetch(`${BASE}/threads/${id}/restore`, { method: 'POST' }).then(r => r.json()),
 
   getMessages: (threadId: string) => fetch(`${BASE}/threads/${threadId}/messages/`).then(r => r.json()),
-  sendMessage: (threadId: string, content: string) =>
-    fetch(`${BASE}/threads/${threadId}/messages/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) }),
+  sendMessage: (threadId: string, content: string, model: string) =>
+    fetch(`${BASE}/threads/${threadId}/messages/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, model }) }),
 
   getTasks: (date?: string) => fetch(`${BASE}/tasks/${date ? `?date=${date}` : ''}`).then(r => r.json()),
   createTask: (body: { title: string; date: string }) =>
