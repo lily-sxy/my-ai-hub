@@ -4,7 +4,7 @@ class FoldersController < ApplicationController
   end
 
   def create
-    folder = Folder.new(name: params[:name])
+    folder = Folder.new(name: params[:name], id: SecureRandom.uuid)
     folder.save!
     render json: folder, status: :created
   end
