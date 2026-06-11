@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "My AI Hub API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "base", "value": "http://localhost:8000" }],
+  "item": [
+    {
+      "name": "Folders",
+      "item": [
+        {
+          "name": "List folders",
+          "request": { "method": "GET", "url": "{{base}}/folders/" }
+        },
+        {
+          "name": "Create folder",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/folders/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"name\": \"Work\" }" }
+          }
+        },
+        {
+          "name": "Delete folder",
+          "request": { "method": "DELETE", "url": "{{base}}/folders/:id" }
+        }
+      ]
+    },
+    {
+      "name": "Threads",
+      "item": [
+        {
+          "name": "List active threads",
+          "request": { "method": "GET", "url": "{{base}}/threads/" }
+        },
+        {
+          "name": "List deleted threads (Trash)",
+          "request": { "method": "GET", "url": "{{base}}/threads/?include_deleted=true" }
+        },
+        {
+          "name": "Create thread",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/threads/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"title\": \"New Chat\", \"model\": \"claude\" }" }
+          }
+        },
+        {
+          "name": "Update thread (rename / move to folder)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/threads/:id",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"title\": \"Renamed\", \"folder_id\": \"folder-uuid-here\" }" }
+          }
+        },
+        {
+          "name": "Soft delete → Trash",
+          "request": { "method": "DELETE", "url": "{{base}}/threads/:id" }
+        },
+        {
+          "name": "Hard delete forever",
+          "request": { "method": "DELETE", "url": "{{base}}/threads/:id/permanent" }
+        },
+        {
+          "name": "Restore from Trash",
+          "request": { "method": "POST", "url": "{{base}}/threads/:id/restore" }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "List messages in thread",
+          "request": { "method": "GET", "url": "{{base}}/threads/:thread_id/messages/" }
+        },
+        {
+          "name": "Send message (streaming)",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/threads/:thread_id/messages/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"content\": \"Hello, how are you?\" }" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks (Planner)",
+      "item": [
+        {
+          "name": "List tasks (all)",
+          "request": { "method": "GET", "url": "{{base}}/tasks/" }
+        },
+        {
+          "name": "List tasks by date",
+          "request": { "method": "GET", "url": "{{base}}/tasks/?date=2026-06-11" }
+        },
+        {
+          "name": "Create task",
+          "request": {
+            "method": "POST",
+            "url": "{{base}}/tasks/",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"title\": \"Finish backend migration\", \"date\": \"2026-06-11\" }" }
+          }
+        },
+        {
+          "name": "Mark task done",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base}}/tasks/:id",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"done\": true }" }
+          }
+        },
+        {
+          "name": "Delete task",
+          "request": { "method": "DELETE", "url": "{{base}}/tasks/:id" }
+        }
+      ]
+    }
+  ]
+}

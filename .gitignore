@@ -1,0 +1,24 @@
+# Environment - never commit real credentials
+.env
+*.env
+!*.env.personal
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+
+# Ruby
+backend-ruby/.bundle/
+backend-ruby/log/
+backend-ruby/tmp/
+backend-ruby/storage/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# macOS
+.DS_Store

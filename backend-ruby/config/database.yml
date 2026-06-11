@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  host: localhost
+  username: postgres
+  password: <%= ENV['DB_PASSWORD'] %>
+
+development:
+  <<: *default
+  database: myaihub
+
+test:
+  <<: *default
+  database: myaihub_test
+
+production:
+  <<: *default
+  database: myaihub
