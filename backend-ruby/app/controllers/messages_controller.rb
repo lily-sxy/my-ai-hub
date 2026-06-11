@@ -72,10 +72,16 @@ class MessagesController < ApplicationController
         max_tokens: 1000,
       }
     )
+
+    # surface API-level errors (e.g. billing, content policy)
+    if response["error"]
+      return "⚠️ OpenAI error: #{response.dig("error", "message")}"
+    end
+
     response.dig("choices", 0, "message", "content") || mock_response
   rescue => e
     Rails.logger.error "OpenAI error: #{e.message}"
-    mock_response
+    "⚠️ OpenAI error: #{e.message}"
   end
 
   def mock_response
