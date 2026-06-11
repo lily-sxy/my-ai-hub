@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Thread, Message
+from models import ChatThread, Message
 from schemas import MessageCreate, MessageOut
 from typing import List
 import asyncio
@@ -26,14 +26,14 @@ async def mock_stream(text: str):
 
 @router.get("/", response_model=List[MessageOut])
 def get_messages(thread_id: str, db: Session = Depends(get_db)):
-    thread = db.query(Thread).filter(Thread.id == thread_id).first()
+    thread = db.query(ChatThread).filter(Thread.id == thread_id).first()
     if not thread:
         raise HTTPException(status_code=404, detail="Thread not found")
     return thread.messages
 
 @router.post("/")
 async def send_message(thread_id: str, body: MessageCreate, db: Session = Depends(get_db)):
-    thread = db.query(Thread).filter(Thread.id == thread_id).first()
+    thread = db.query(ChatThread).filter(Thread.id == thread_id).first()
     if not thread:
         raise HTTPException(status_code=404, detail="Thread not found")
 

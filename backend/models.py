@@ -13,9 +13,9 @@ class Folder(Base):
     name = Column(String, nullable=False)
     position = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    threads = relationship("Thread", back_populates="folder")
+    threads = relationship("ChatThread", back_populates="folder")
 
-class Thread(Base):
+class ChatThread(Base):
     __tablename__ = "threads"
     id = Column(String, primary_key=True, default=gen_uuid)
     folder_id = Column(String, ForeignKey("folders.id"), nullable=True)
@@ -34,7 +34,7 @@ class Message(Base):
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    thread = relationship("Thread", back_populates="messages")
+    thread = relationship("ChatThread", back_populates="messages")
 
 class Task(Base):
     __tablename__ = "tasks"
