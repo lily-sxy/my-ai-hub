@@ -7,29 +7,25 @@ class MessagesController < ApplicationController
   ]
 
   def index
-    thread = Thread.find(params[:thread_id])
+    thread = ChatThread.find(params[:thread_id])
     render json: thread.messages.order(:created_at)
   end
 
   def create
-    thread = Thread.find(params[:thread_id])
+    thread = ChatThread.find(params[:thread_id])
 
-    # save user message
     thread.messages.create!(role: "user", content: params[:content], id: SecureRandom.uuid)
 
-    # update title and summary on first message
     if thread.messages.count == 1
-      title = params[:content].truncate(40)
-      thread.update!(title: title, summary: "Chat about: #{params[:content].truncate(80)}")
+      thread.update!(
+        title: params[:content].truncate(40),
+        summary: "Chat about: #{params[:content].truncate(80)}"
+      )
     end
 
-    # mock AI response
     response_text = MOCK_RESPONSES.sample
-
-    # save assistant message
     thread.messages.create!(role: "assistant", content: response_text, id: SecureRandom.uuid)
 
-    # stream word by word
     self.response.headers["Content-Type"] = "text/event-stream"
     self.response.headers["Cache-Control"] = "no-cache"
     self.response_body = Enumerator.new do |y|
