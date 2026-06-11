@@ -1,3 +1,5 @@
+require "openai"
+
 class MessagesController < ApplicationController
   MOCK_RESPONSES = [
     "That's a great question! Let me break this down step by step.\n\nFirst, consider the core problem you're trying to solve. Then we can work through the best approach together.",
@@ -14,8 +16,10 @@ class MessagesController < ApplicationController
   def create
     thread = ChatThread.find(params[:thread_id])
 
+    # save user message
     thread.messages.create!(role: "user", content: params[:content], id: SecureRandom.uuid)
 
+    # update title and summary on first message
     if thread.messages.count == 1
       thread.update!(
         title: params[:content].truncate(40),
@@ -23,17 +27,58 @@ class MessagesController < ApplicationController
       )
     end
 
-    response_text = MOCK_RESPONSES.sample
+    # build message history for context
+    history = thread.messages.order(:created_at).map do |m|
+      { role: m.role, content: m.content }
+    end
+
+    response_text = generate_response(history, params[:model] || thread.model)
+
+    # save assistant message
     thread.messages.create!(role: "assistant", content: response_text, id: SecureRandom.uuid)
 
+    # stream response word by word
     self.response.headers["Content-Type"] = "text/event-stream"
     self.response.headers["Cache-Control"] = "no-cache"
     self.response_body = Enumerator.new do |y|
       response_text.split(" ").each do |word|
         y << "data: #{word} \n\n"
-        sleep 0.05
+        sleep 0.03
       end
       y << "data: [DONE]\n\n"
     end
+  end
+
+  private
+
+  def generate_response(history, model)
+    case model
+    when "gpt-4o"
+      openai_response(history)
+    else
+      mock_response
+    end
+  end
+
+  def openai_response(history)
+    api_key = ENV["OPENAI_API_KEY"]
+    return mock_response if api_key.blank?
+
+    client = OpenAI::Client.new(access_token: api_key)
+    response = client.chat(
+      parameters: {
+        model: "gpt-4o",
+        messages: history,
+        max_tokens: 1000,
+      }
+    )
+    response.dig("choices", 0, "message", "content") || mock_response
+  rescue => e
+    Rails.logger.error "OpenAI error: #{e.message}"
+    mock_response
+  end
+
+  def mock_response
+    MOCK_RESPONSES.sample
   end
 end
