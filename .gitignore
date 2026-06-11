@@ -22,3 +22,4 @@ frontend/.vite/
 
 # macOS
 .DS_Store
+logs/
